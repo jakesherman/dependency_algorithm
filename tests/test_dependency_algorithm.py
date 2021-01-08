@@ -95,14 +95,17 @@ def test_complete_dependencies_check():
 
     # Does deps.complete_dependencies work?
     for item, in items_0_mistakes_complete.keys():
-        if deps.complete_dependencies(item) != items_0_mistakes_complete[item]:
+        if set(deps.complete_dependencies(item)) != \
+                set(items_0_mistakes_complete[item]):
             test_passed = False
-            
-    # Does deps.complete_dependencies_dict work?
-    if deps.complete_dependencies_dict() != items_0_mistakes_complete:
-        test_passed = False
-
     assert test_passed
+
+    # Does deps.complete_dependencies_dict work?
+    items_0_mistakes_complete_set_dict = \
+        {k: set(v) for k, v in items_0_mistakes_complete.items()}
+    class_set_dict = \
+        {k: set(v) for k, v in deps.complete_dependencies_dict().items()}
+    assert items_0_mistakes_complete_set_dict == class_set_dict
 
 
 def test_dependency_resolution():
