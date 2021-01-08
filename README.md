@@ -1,12 +1,10 @@
 # Dependency Algorithm
 
-Here is my take on an algorithm in Python that resolves dependencies. I walk through the process of creating the algorithm in `dependency_algo.ipynb`, and implement it in a `Dependencies` class in `Dependencies.py`. The `Dependencies` class accepts as an input a dictionary of items as keys and lists of dependencies as values (see below). Alternatively, you may use the `add_item` method to add items to a `Dependencies` object.
-
-I did not look at other dependency algorithms when creating this, but afterwards I found some [great work by Ferry Boender](http://www.electricmonk.nl/log/2008/08/07/dependency-resolving-algorithm/) that used recursion to resolve dependencies. My solutions do not use recursion.
+Here is my take on an algorithm in Python 3.7 that resolves dependencies. The best way to illustrate how this works is with an example...
 
 ## Example 
 
-Dictionary of items we want to resolve dependencies for:
+Let's say that we have the following dictionary where the keys are items, and the values are the dependencies of those items. Each dependency must itself be an item, and items with no dependencies have an empty list `[]` as they dependency:
 
 ```python
 my_items = {
@@ -20,42 +18,67 @@ my_items = {
 }
 ```
 
-We can use the `Dependencies` class to take these items and order them.
+Note that we've only provided a partial dictionary of items to their dependencies...for example, notice how C is dependent on D, which is dependent on B (no dependencies) and E, which is dependent on F...therefore, C is dependent on D, B, E, and F. 
+
+We can use the `Dependencies` class to get the complete list of dependencies for an item, like so:
 
 ```python
-import collections
-from Dependencies import Dependencies
+from dependency_algorithm import Dependencies
 
 # Creating a Dependencies object
 dependencies = Dependencies(my_items)
-
-# The order method returns an OrderedDict
-print Dependencies(my_items).order()
+dependencies.complete_dependencies("C")
 ```
 
 ```
->>> OrderedDict([('B', []),
->>>              ('F', []),
->>>              ('E', ['F']),
->>>              ('D', ['B', 'E']),
->>>              ('C', ['D']),
->>>              ('A', ['B', 'C', 'D']),
->>>              ('Z', ['A', 'B', 'C', 'D'])])
+>>> ['D', 'B', 'E', 'F']
 ```
 
-We can also output a list of the item names in order
+More importantly, we can return the items in an order such that the dependencies resolve:
 
 ```python
-print Dependencies(my_items).order_list()
+dependencies.resolve_dependencies()
 ```
 
 ```
 >>> ['B', 'F', 'E', 'D', 'C', 'A', 'Z']
 ```
 
+In many cases, there are multiple correct ordering of our items such that each item's dependencies resolve. If we're interested in all possible correct orderings, the `Dependencies` class can permutate over all possible orderings, and identify the correct ones (albeit at a high computational cost), like so:
 
-## Files
+```python
+dependencies.all_possible_resolution_orders(verbose=True)
+```
 
-- `dependency_algo.ipynb` Jupyter Notebook where I walk through the steps I used in creating the algorithm
-- `Dependencies.py` contains the `Dependencies` class used to order a dictionary of items and their dependencies
-- `tests.py` has a few quick tests to check to make sure that the `Dependencies` class is functioning correctly
+```
+>>> Number of permutations: 5040
+>>> Number of correct orderings: 3
+>>> Number of incorrect orderings: 5037
+>>> [('B', 'F', 'E', 'D', 'C', 'A', 'Z'),
+>>>  ('F', 'B', 'E', 'D', 'C', 'A', 'Z'),
+>>>  ('F', 'E', 'B', 'D', 'C', 'A', 'Z')]
+```
+
+That's pretty much it! The `Dependencies` class also performs two checks, one for any dependencies that are "missing" (i.e., they are not keys in the input dictionary of items and dependencies), and another for cirular dependencies (i.e., A is dependent on B which is dependent on A which is...and so on...).
+
+## Installation
+
+Requires Python 3.7 or greater.
+
+```
+pip install dependency_algorithm
+```
+
+## Running the unit tests with `pytest`
+
+```
+git clone https://github.com/jakesherman/dependency_algorithm.git
+cd dependency_algorithm
+pip install -e .
+python -m pytest
+```
+
+## Future work
+
+* New version of `Dependencies._enhanced_list_dependencies` that uses iteration instead of recursion
+* Improved version of `Dependencies.all_possible_resolution_orders` that uses a more efficient algorithm than looping through permutations, ex. a recursive algorithm
