@@ -1,10 +1,10 @@
 # Dependency Algorithm
 
-Here is my take on an algorithm in Python that resolves dependencies. The best way to illustrate how this works is with an example:
+Here is my take on an algorithm in Python that resolves dependencies. The best way to illustrate how this works is with an example...
 
 ## Example 
 
-Let's say that we have the following dictionary where the keys are items, and the values are the dependencies of those items. Each dependency must itself be an item, and items with no dependencies have an empty list `[]` as they dependency.
+Let's say that we have the following dictionary where the keys are items, and the values are the dependencies of those items. Each dependency must itself be an item, and items with no dependencies have an empty list `[]` as they dependency:
 
 ```python
 my_items = {
@@ -59,6 +59,8 @@ dependencies.all_possible_resolution_orders(verbose=True)
 >>>  ('F', 'E', 'B', 'D', 'C', 'A', 'Z')]
 ```
 
+That's pretty much it! The `Dependencies` class also performs two checks, one for any dependencies that are "missing" (i.e., they are not keys in the input dictionary of items and dependencies), and another for cirular dependencies (i.e., A is dependent on B which is dependent on A which is...and so on...).
+
 ## Installation
 
 ```
@@ -73,3 +75,8 @@ cd dependency_algorithm
 pip install -e .
 python -m pytest
 ```
+
+## Future work
+
+* New version of `Dependencies._enhanced_list_dependencies` that uses iteration instead of recursion
+* Improved version of `Dependencies.all_possible_resolution_orders` that uses a more efficient algorithm than looping through permutations, ex. a recursive algorithm
